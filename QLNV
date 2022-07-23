@@ -1,0 +1,266 @@
+---NhanVien.h
+#pragma once
+#include <iostream>
+#include <string.h>
+#include <string>
+using namespace std;
+
+class NhanVien
+{
+
+protected:
+	string strHoTen;
+	int iTuoi;
+	double dLuong;
+public:
+	virtual void Nhap();
+	string getHoTen();
+	virtual double TinhLuong();
+	virtual void Xuat();
+};
+
+---NhanVien.cpp
+#include "NhanVien.h"
+
+void NhanVien::Nhap()
+{
+	cout << "\nNhap Ho ten cua nhan vien: ";
+	cin.ignore();
+	getline(cin, strHoTen);
+	cout << "\nNhap Tuoi cua nhan vien: ";
+	cin >> iTuoi;
+}
+
+double NhanVien::TinhLuong()
+{
+	return 0;
+}
+
+void NhanVien::Xuat()
+{
+	cout << "\nTen cua nhan vien la: ";
+	cout << strHoTen;
+	cout << "\nTuoi cua nhan vien la: ";
+	cout << iTuoi;
+	cout << "\nLuong cua nhan vien la: ";
+} 
+string NhanVien::getHoTen()
+{
+	return strHoTen;
+}
+
+
+---NhanVienSanXuat.h
+#pragma once
+#include "NhanVien.h"
+
+class NhanVienSanXuat:public NhanVien
+{
+	double dLuongCanBan;
+	int iSoSanPham;
+public:
+	virtual void Nhap();
+	virtual double TinhLuong();
+	virtual void Xuat();
+};  
+
+
+---NhanVienSanXuat.cpp
+#include "NhanVienSanXuat.h"
+
+
+void NhanVienSanXuat::Nhap()
+{
+	NhanVien::Nhap();
+	cout << "\nNhap luong co ban: ";
+	cin >> dLuongCanBan;
+	cout << "\nNhap so san pham: ";
+	cin >> iSoSanPham;
+}
+
+double NhanVienSanXuat::TinhLuong()
+{
+	return dLuongCanBan + iSoSanPham * 5000;
+}
+
+void NhanVienSanXuat::Xuat()
+{
+	NhanVien::Xuat();
+	cout << NhanVienSanXuat::TinhLuong();
+}
+
+
+---NhanVienVanPhong.h
+#pragma once
+#include "NhanVien.h"
+
+class NhanVienVanPhong:public NhanVien
+{
+	int iSoNgayLamViec;
+public:
+	virtual void Nhap();
+	virtual double TinhLuong();
+	virtual void Xuat();
+}
+
+
+---NhanVienVanPhong.cpp
+#include "NhanVien.h"
+#include "NhanVienVanPhong.h"
+
+void NhanVienVanPhong::Nhap()
+{
+	NhanVien::Nhap();
+	cout << "\nNhap so ngay lam viec: ";
+	cin >> iSoNgayLamViec;
+}
+
+double NhanVienVanPhong::TinhLuong()
+{
+	return iSoNgayLamViec * 100000;
+}
+
+void NhanVienVanPhong::Xuat()
+{
+	NhanVien::Xuat();
+	cout << NhanVienVanPhong::TinhLuong();
+}
+
+
+---QuanLyNhanVien.h
+#pragma once
+#include "NhanVien.h"
+#include "NhanVienSanXuat.h"
+#include "NhanVienVanPhong.h"
+
+class QuanLy : public NhanVien 
+{
+	int k = 0;//k để đếm số nhân viên nhập vào
+	NhanVien **n = new NhanVien*[100];
+public:
+	void Nhap();
+	double TinhTongLuong();
+	void TimLuongCaoNhat();
+	void TimLuongThapNhat();
+	void Xuat();
+};
+
+
+---QuanLyNhanVien.cpp
+#include "NhanVien.h"
+#include "NhanVienSanXuat.h"
+#include "NhanVienVanPhong.h"
+#include "QuanLyNhanVien.h"
+
+void QuanLy::Nhap()
+{
+	int m; //m để nhập lựa chọn
+	for (int i = 0;; i++)
+	{
+		do
+		{
+			cout << "\n__________Nhap loai nhan vien__________";
+			cout << "\n_____1.Nhan vien van phong";
+			cout << "\n_____2.Nhan vien san xuat";
+			cout << "\n_____3.Ket thuc viec nhap";
+			cout << endl;
+			cin >> m;
+			if (m < 1 && m > 3)
+			{
+				cout << "\nSo nhap vo khong hop le, nhap lai";
+			}
+		} while (m != 1 && m != 2 && m != 3);
+		if (m == 1)
+		{
+			n[i] = new NhanVienVanPhong;
+			k++;
+		}
+		else if (m == 2)
+		{
+			n[i] = new NhanVienSanXuat;
+			k++;
+		}
+		else if (m == 3)
+		{
+			break;
+		}
+		n[i]->Nhap();
+	}
+}
+
+double QuanLy::TinhTongLuong()
+{
+	double dTongLuong = 0;
+	for (int i = 0; i < k; i++)
+	{
+		dTongLuong += n[i]->TinhLuong();	
+	}
+	return dTongLuong;
+}
+
+void QuanLy::TimLuongCaoNhat()
+{
+	int max = 0;
+	for (int i = 0; i < k; i++)
+	{
+		if (n[i]->TinhLuong() > max)
+			max = n[i]->TinhLuong();
+	}
+	for (int i = 0; i < k; i++)
+	{
+		if (n[i]->TinhLuong() == max)
+		{
+			cout << "\nNguoi co luong cao nhat: ";
+			cout << n[i]->getHoTen();
+		}
+	}
+}
+
+void QuanLy::TimLuongThapNhat()
+{
+	int min = 0;
+	for (int i = 0; i < k; i++)
+	{
+		if (n[i]->TinhLuong() > min)
+			min = n[i]->TinhLuong();
+	}
+	for (int i = 0; i < k; i++)
+	{
+		if (n[i]->TinhLuong() == min)
+		{
+			cout << "\nNguoi co luong thap nhat: ";
+			cout << n[i]->getHoTen();
+		}
+	}
+}
+
+void QuanLy::Xuat()
+{
+	for (int i = 0; i < k; i++)
+	{
+		n[i]->Xuat();
+	}
+	cout << "\nSo tien cong ty phai tra cho nhan vien la: ";
+	cout << TinhTongLuong();
+}
+
+
+---main.cpp
+#include "NhanVien.h"
+#include "QuanLyNhanVien.h"
+
+int main()
+{
+	QuanLy a;
+	a.Nhap();
+	a.Xuat();
+	a.TimLuongCaoNhat();
+	a.TimLuongThapNhat();
+	return 0;
+}
+
+
+
+
+
+
